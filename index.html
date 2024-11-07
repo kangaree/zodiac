@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zodiac Constellations</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI Symbol', 'Arial Unicode MS', 'Noto Sans', sans-serif;
+            background-color: #000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .carousel {
+            display: flex;
+            transition: transform 1s ease;
+            position: absolute;
+        }
+
+        .carousel .constellation {
+            width: 150px;
+            height: 150px;
+            background-color: #333;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin: 0 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .constellation-name {
+            position: absolute;
+            top: -30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .constellation-dates {
+            position: absolute;
+            bottom: -30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .current-sign {
+            border: 3px solid #fff;
+        }
+
+        .carousel-controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            transform: translateY(-50%);
+        }
+
+        .carousel-controls button {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .carousel-controls button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel-container">
+        <div class="carousel" id="carousel">
+            <!-- Constellations dynamically inserted here -->
+        </div>
+        <div class="carousel-controls">
+            <button id="prev">←</button>
+            <button id="next">→</button>
+        </div>
+    </div>
+
+    <script>
+        const constellations = [
+            { name: 'Aries ♈', image: './aries.png', dates: "3/21-4/19" },
+            { name: 'Taurus ♉', image: './taurus.png', dates: "4/20-5/20" },
+            { name: 'Gemini ♊', image: './gemini.png', dates: "5/21-6/21" },
+            { name: 'Cancer ♋', image: './cancer.png', dates: "6/22-7/22" },
+            { name: 'Leo ♌', image: './leo.png', dates: "7/23-8/22" },
+            { name: 'Virgo ♍', image: './virgo.png', dates: "8/23-9/22" },
+            { name: 'Libra ♎', image: './libra.png', dates: "9/23-10/23" },
+            { name: 'Scorpio ♏', image: './scorpio.png', dates: "10/24-11/21" },
+            { name: 'Sagittarius ♐', image: './sagittarius.png', dates: "11/22-12/21" },
+            { name: 'Capricorn ♑', image: './capricorn.png', dates: "12/22-1/19" },
+            { name: 'Aquarius ♒', image: './aquarius.png', dates: "1/20-2/18" },
+            { name: 'Pisces ♓', image: './pisces.png', dates: "2/19-3/20" }
+        ];
+
+        // Get the current zodiac sign based on today's date
+        const getCurrentSign = () => {
+            const date = new Date();
+            const month = date.getMonth(); // Get the month (0-11)
+            const day = date.getDate(); // Get the day (1-31)
+            
+            // Date ranges for each sign (start and end dates)
+            const zodiacDates = [
+                { sign: 'Aries ♈', start: { month: 2, day: 21 }, end: { month: 3, day: 19 } },
+                { sign: 'Taurus ♉', start: { month: 3, day: 20 }, end: { month: 4, day: 20 } },
+                { sign: 'Gemini ♊', start: { month: 4, day: 21 }, end: { month: 5, day: 20 } },
+                { sign: 'Cancer ♋', start: { month: 5, day: 21 }, end: { month: 6, day: 22 } },
+                { sign: 'Leo ♌', start: { month: 6, day: 23 }, end: { month: 7, day: 22 } },
+                { sign: 'Virgo ♍', start: { month: 7, day: 23 }, end: { month: 8, day: 22 } },
+                { sign: 'Libra ♎', start: { month: 8, day: 23 }, end: { month: 9, day: 22 } },
+                { sign: 'Scorpio ♏', start: { month: 9, day: 23 }, end: { month: 10, day: 22 } },
+                { sign: 'Sagittarius ♐', start: { month: 10, day: 23 }, end: { month: 11, day: 21 } },
+                { sign: 'Capricorn ♑', start: { month: 11, day: 22 }, end: { month: 0, day: 19 } },
+                { sign: 'Aquarius ♒', start: { month: 0, day: 20 }, end: { month: 1, day: 18 } },
+                { sign: 'Pisces ♓', start: { month: 1, day: 19 }, end: { month: 2, day: 20 } }
+            ];
+
+            // Find the current zodiac sign based on today's date
+            for (let i = 0; i < zodiacDates.length; i++) {
+                const { sign, start, end } = zodiacDates[i];
+                if ((month === start.month && day >= start.day) || 
+                    (month === end.month && day <= end.day) || 
+                    (month > start.month && month < end.month)) {
+                    return sign;
+                }
+            }
+            return 'Aries'; // Default to Aries if no match
+        };
+
+        // Populate the carousel with zodiac constellations
+        const carousel = document.getElementById('carousel');
+        let currentIndex = constellations.findIndex(c => c.name === getCurrentSign());
+
+        const renderCarousel = () => {
+            carousel.innerHTML = '';
+            const start = currentIndex - 3 < 0 ? constellations.length + (currentIndex - 3) : currentIndex - 3;
+            const end = currentIndex + 3 >= constellations.length ? currentIndex + 3 - constellations.length : currentIndex + 3;
+            
+            // Add 7 constellations to the carousel (with wrapping)
+            const indices = [
+                ...Array.from({ length: 7 }, (_, i) => (start + i) % constellations.length)
+            ];
+
+            indices.forEach(i => {
+                const constellation = constellations[i];
+                const div = document.createElement('div');
+                div.className = 'constellation';
+                div.style.backgroundImage = `url(${constellation.image})`;
+
+                // Create the name above the image
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'constellation-name';
+                nameDiv.textContent = constellation.name;
+                div.appendChild(nameDiv);
+
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'constellation-dates';
+                dateDiv.textContent = constellation.dates;
+                div.appendChild(dateDiv);
+
+                if (i === currentIndex) div.classList.add('current-sign');
+                carousel.appendChild(div);
+            });
+        };
+
+        // Handle carousel navigation
+        document.getElementById('prev').addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + constellations.length) % constellations.length;
+            renderCarousel();
+        });
+
+        document.getElementById('next').addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % constellations.length;
+            renderCarousel();
+        });
+
+        // Initialize the carousel
+        renderCarousel();
+    </script>
+</body>
+</html>
